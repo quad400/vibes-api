@@ -45,10 +45,22 @@ class Configuration {
     readonly CREATE_USER_QUEUE = "create-user"
 
     @IsString()
+    readonly IMAGE_UPLOAD_QUEUE = "image-upload"
+
+    @IsString()
     readonly JWT_SECRET = process.env.JWT_SECRET
     
     @IsString()
     readonly JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN
+    
+    @IsString()
+    readonly CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME
+    
+    @IsString()
+    readonly CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY
+    
+    @IsString()
+    readonly CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET
 
 }
 

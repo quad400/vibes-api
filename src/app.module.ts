@@ -15,6 +15,9 @@ import { RedisModule } from '@nestjs-modules/ioredis';
 import { ArtistModule } from './res/artist/artist.module';
 import { AlbumModule } from './res/album/album.module';
 import { TrackModule } from './res/track/track.module';
+import { UploadModule } from './res/upload/upload.module';
+import { CloudinaryConfigService } from './lib/config/cloudinary.config';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -31,16 +34,18 @@ import { TrackModule } from './res/track/track.module';
       url: Config.REDIS_URL,
     }),
   }),
-  
+  ConfigModule.forRoot({isGlobal: true}),
   CacheModule.register({
     isGlobal: true,
     store: redisStore,
     url: Config.REDIS_URL,
     ttl: 300,
     }),
-    UserModule, AuthModule, ArtistModule, AlbumModule, TrackModule],
+    UserModule, AuthModule, ArtistModule, AlbumModule, TrackModule, UploadModule],
     controllers: [AppController],
-    providers: [AppService, 
+    providers: [
+      AppService,
+      CloudinaryConfigService, 
     {
       provide: APP_GUARD,
       useClass: AuthGuard,

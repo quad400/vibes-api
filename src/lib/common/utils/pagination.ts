@@ -21,9 +21,9 @@ export class PageMetaDto {
     @IsBoolean()
     hasNextPage: boolean;
   
-    constructor({ pageOptionsDto, itemCount }: PageMetaDtoParameters) {
-      this.page = pageOptionsDto.page;
-      this.limit = pageOptionsDto.limit;
+    constructor({ queryOptionsDto, itemCount }: PageMetaDtoParameters) {
+      this.page = queryOptionsDto.page;
+      this.limit = queryOptionsDto.limit;
       this.itemCount = itemCount;
       this.pageCount = Math.ceil(this.itemCount / this.limit);
       this.hasPreviousPage = this.page > 1;
@@ -31,7 +31,7 @@ export class PageMetaDto {
     }
   }
 
-export class PageOptionsDto {
+export class QueryOptionsDto {
 
     @IsInt()
     @Min(1)
@@ -52,7 +52,7 @@ export class PageOptionsDto {
 
 
 export interface PageMetaDtoParameters {
-    pageOptionsDto: PageOptionsDto;
+    queryOptionsDto: QueryOptionsDto;
     itemCount: number;
   }
   

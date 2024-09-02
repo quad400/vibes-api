@@ -1,34 +1,64 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  Put,
+} from '@nestjs/common';
 import { AlbumService } from './album.service';
-import { CreateAlbumDto } from './dto/create-album.dto';
-import { UpdateAlbumDto } from './dto/update-album.dto';
+import { CreateAlbumDto, UpdateAlbumDto } from './dto/album.dto';
+import { CurrentUser } from '../user/decorator/current-user.decorator';
+import { UserEntity } from '../user/entities/user.entity';
+import { QueryOptionsDto } from 'src/lib/common/utils/pagination';
 
 @Controller('album')
 export class AlbumController {
   constructor(private readonly albumService: AlbumService) {}
 
-  @Post()
-  create(@Body() createAlbumDto: CreateAlbumDto) {
-    return this.albumService.create(createAlbumDto);
+  @Post('add-album')
+  async addAlbum(
+    @CurrentUser() user: UserEntity,
+    @Body() createAlbumDto: CreateAlbumDto,
+  ) {
+    return await this.albumService.addAlbum(user.id, createAlbumDto);
   }
 
-  @Get()
-  findAll() {
-    return this.albumService.findAll();
+  @Get('get-all-albums')
+  async getAllAlbums(@Query() query: QueryOptionsDto) {
+    return await this.albumService.getAllAlbums(query);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.albumService.findOne(+id);
+  @Patch('update-album/:albumId')
+  async updateAlbum(
+    @CurrentUser() user: UserEntity,
+    @Param('albumId') albumId: string,
+    @Body() data: UpdateAlbumDto,
+  ) {
+    return await this.albumService.updateAlbum(user.id, albumId, data);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAlbumDto: UpdateAlbumDto) {
-    return this.albumService.update(+id, updateAlbumDto);
+  @Get('get-album/:albumId')
+  async getAlbum(@Param('albumId') albumId: string) {
+    return await this.albumService.getAlbum(albumId);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.albumService.remove(+id);
+  @Put('like-unlike-album/:albumId')
+  async likeUnlikeAlbum(
+    @CurrentUser() user: UserEntity,
+    @Param('albumId') albumId: string,
+  ) {
+    return await this.albumService.likeUnLikeAlbum(user.id, albumId);
+  }
+
+  @Delete('delete-album/:albumId')
+  async deleteAlbum(
+    @CurrentUser() user: UserEntity,
+    @Param('albumId') albumId: string,
+  ) {
+    return await this.albumService.deleteAlbum(user.id, albumId);
   }
 }

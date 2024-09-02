@@ -31,7 +31,6 @@ export class UserService {
     }
 
     async followUnfollowUser(userId: string, followId: string) {
-        console.log(userId, followId)
         const existingFollow = await this.followRepository.findOne({
             where: {
                 follower: {

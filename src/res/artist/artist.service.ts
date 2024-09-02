@@ -7,7 +7,7 @@ import { UserService } from '../user/user.service';
 import { UserEntity } from '../user/entities/user.entity';
 import { Response } from 'src/lib/common/utils/response';
 import { UserRole } from 'src/lib/enums/user.enum';
-import { PageDto, PageMetaDto, PageOptionsDto } from 'src/lib/common/utils/pagination';
+import { PageDto, PageMetaDto, QueryOptionsDto } from 'src/lib/common/utils/pagination';
 
 @Injectable()
 export class ArtistService {
@@ -39,9 +39,9 @@ export class ArtistService {
         }
 
         const user = await this.userService.findById(userId);
-        const setUser = Object.assign({ role: UserRole.ARTIST }, user);
+        Object.assign(user,{ role: UserRole.ARTIST });
 
-        await this.userRepository.save(setUser);
+        await this.userRepository.save(user);
         const artist = this.artistRepository.create({ ...data, user });
         await this.artistRepository.save(artist);
         return Response.success(artist, 'Artist created successfully', HttpStatus.CREATED);
@@ -71,11 +71,15 @@ export class ArtistService {
     
     async deleteArtist(userId: string){
         const artist = await this.findByUserId(userId)
+        const user = await this.userService.findById(userId);
+        Object.assign(user,{ role: UserRole.LISTENER });
+        await this.userRepository.save(user);
+
         await this.artistRepository.remove(artist)
-        return Response.success(null, 'Artist deleted successfully', HttpStatus.OK);
+        return Response.success(null, 'Artist Account deleted successfully', HttpStatus.OK);
     }
     
-    async getArtists(query: PageOptionsDto){
+    async getArtists(query: QueryOptionsDto){
         const {limit, keywords, page} = query
 
         const skip = (page - 1) * limit
@@ -97,7 +101,7 @@ export class ArtistService {
 
         const pageMetaDto = new PageMetaDto({
             itemCount,
-            pageOptionsDto: query,
+            queryOptionsDto: query,
           });
       
           const pagedto = new PageDto(artists, pageMetaDto);

@@ -23,6 +23,6 @@ export class TrackEntity {
     @ManyToOne(()=> AlbumEntity , (album)=> album.id, {onDelete: "CASCADE", eager: true})
     album: AlbumEntity
 
-    @OneToMany(()=> TrackLikeEntity, (trackLike)=> trackLike.track)
+    @OneToMany(()=> TrackLikeEntity, (trackLike)=> trackLike.user)
     likes: TrackLikeEntity[]
 }

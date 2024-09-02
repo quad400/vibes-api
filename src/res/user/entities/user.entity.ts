@@ -4,6 +4,7 @@ import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, OneToOne,
 import { FollowEntity } from "./user-follow.entity";
 import { ArtistEntity } from "src/res/artist/entity/artist.entity";
 import { TrackLikeEntity } from "src/res/track/entities/track-like.entity";
+import { AlbumLikeEntity } from "src/res/album/entities/album-like.entity";
 
 @Entity("users")
 export class UserEntity extends BaseEntity {
@@ -57,6 +58,9 @@ export class UserEntity extends BaseEntity {
     @OneToMany(()=> FollowEntity, (follow)=> follow.follower)
     followers: FollowEntity[]
 
-    @OneToMany(()=> TrackLikeEntity, (likes)=> likes.user)
+    @OneToMany(()=> AlbumLikeEntity, (album_likes)=> album_likes.album)
+    album_likes: AlbumLikeEntity[]
+
+    @OneToMany(()=> TrackLikeEntity, (track_likes)=> track_likes.track)
     track_likes: TrackLikeEntity[]
 }
