@@ -1,4 +1,4 @@
-import { Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { UserEntity } from "./user.entity";
 
 
@@ -7,11 +7,17 @@ export class FollowEntity {
     @PrimaryGeneratedColumn("uuid")
     id: string;
 
-    @ManyToOne(() => UserEntity, (user) => user.followings)
+    @Column({name: "follower_id", nullable: false})
+    follower_id: string;
+
+    @ManyToOne(() => UserEntity, (user) => user.id)
     @JoinColumn({name: "follower_id"})
     follower: UserEntity
 
-    @ManyToOne(() => UserEntity, (user) => user.followers)
+    @Column({name: "following_id", nullable: false})
+    following_id: string;
+
+    @ManyToOne(() => UserEntity, (user) => user.id)
     @JoinColumn({name: "following_id"})
     following: UserEntity
 

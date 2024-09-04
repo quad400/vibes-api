@@ -19,7 +19,7 @@ export class ArtistEntity extends BaseEntity{
     @Column({type: "enum", enum:GenreEnum})
     genre: GenreEnum
 
-    @OneToOne(()=> UserEntity, (user)=> user.artist)
+    @OneToOne(()=> UserEntity, (user)=> user.artist, {eager: true})
     @JoinColumn({name: "user_id"})
     user: UserEntity
 

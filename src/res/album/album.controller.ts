@@ -46,12 +46,25 @@ export class AlbumController {
     return await this.albumService.getAlbum(albumId);
   }
 
+  @Get('get-album-likes/:albumId')
+  async getAlbumLikes(@Param('albumId') albumId: string) {
+    return await this.albumService.getAlbumLikes(albumId);
+  }
+
   @Put('like-unlike-album/:albumId')
   async likeUnlikeAlbum(
     @CurrentUser() user: UserEntity,
     @Param('albumId') albumId: string,
   ) {
     return await this.albumService.likeUnLikeAlbum(user.id, albumId);
+  }
+
+  @Put('add-remove-favourite-album/:albumId')
+  async addRemoveFavouriteAlbum(
+    @CurrentUser() user: UserEntity,
+    @Param('albumId') albumId: string,
+  ) {
+    return await this.albumService.addRemoveFavouriteAlbum(user.id, albumId);
   }
 
   @Delete('delete-album/:albumId')

@@ -21,6 +21,11 @@ export class UserController{
         return await this.userService.getMe(user.id)
     }
 
+    @Get("profile/:userId")
+    async getUserProfile(@Param("userId") userId: string){
+        return await this.userService.getMe(userId)
+    }
+
     @Put("follow-unfollow/:followId")
     async followUser(@CurrentUser() user: UserEntity, @Param("followId") followId: string){
         return await this.userService.followUnfollowUser(user.id, followId)
