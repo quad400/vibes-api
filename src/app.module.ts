@@ -5,10 +5,10 @@ import { AppService } from './app.service';
 import { UserModule } from './res/user/user.module';
 import { AuthModule } from './res/auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CacheModule } from '@nestjs/cache-manager';
+import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import { dataSourceOptions } from './lib/db/data-source';
 import { Config } from './lib/config';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthGuard } from './res/auth/guard/auth.guard';
 import { redisStore } from 'cache-manager-redis-yet';
 import { RedisModule } from '@nestjs-modules/ioredis';
@@ -27,7 +27,7 @@ import { PlaylistModule } from './res/playlist/playlist.module';
       redis: {
         host: Config.REDIS_HOST,
         port: Config.REDIS_PORT,
-      },
+      }
     }),
     RedisModule.forRootAsync({
       useFactory: () => ({
@@ -40,7 +40,7 @@ import { PlaylistModule } from './res/playlist/playlist.module';
       isGlobal: true,
       store: redisStore,
       url: Config.REDIS_URL,
-      ttl: 300,
+      ttl: 50000,
     }),
     UserModule,
     AuthModule,
@@ -57,7 +57,8 @@ import { PlaylistModule } from './res/playlist/playlist.module';
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
-    },
+    }
   ],
 })
+
 export class AppModule {}

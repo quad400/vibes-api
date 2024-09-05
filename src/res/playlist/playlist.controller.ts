@@ -8,6 +8,7 @@ import {
   Post,
   Put,
   Query,
+  UseInterceptors,
 } from '@nestjs/common';
 import { PlaylistService } from './playlist.service';
 import { CurrentUser } from '../user/decorator/current-user.decorator';
@@ -18,7 +19,9 @@ import {
   UpdatePlaylistDto,
 } from './dto/playlist.dto';
 import { QueryOptionsDto } from 'src/lib/common/utils/pagination';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
+@UseInterceptors(CacheInterceptor)
 @Controller('playlist')
 export class PlaylistController {
   constructor(private readonly playlistService: PlaylistService) {}

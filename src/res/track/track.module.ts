@@ -12,6 +12,11 @@ import { ArtistEntity } from '../artist/entity/artist.entity';
 import { UserEntity } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
 import { FollowEntity } from '../user/entities/user-follow.entity';
+import { BullModule } from '@nestjs/bull';
+import { Config } from 'src/lib/config';
+import { TrackPlayConsumer } from './consumer/play.consumer';
+import { PlayEntity } from './entities/play.entity';
+import { PlaylistEntity } from '../playlist/entities/playlist.entity';
 
 @Module({
   imports: [
@@ -22,11 +27,20 @@ import { FollowEntity } from '../user/entities/user-follow.entity';
       ArtistEntity,
       AlbumLikeEntity,
       UserEntity,
-      FollowEntity
+      FollowEntity,
+      PlayEntity
     ]),
+    BullModule.registerQueue({
+      name: Config.TRACK_PLAY_QUEUE,
+    }),
   ],
-  exports: [TrackService],
   controllers: [TrackController],
-  providers: [TrackService, AlbumService, ArtistService, UserService],
+  providers: [
+    TrackService,
+    AlbumService,
+    ArtistService,
+    UserService,
+    TrackPlayConsumer,
+  ],
 })
 export class TrackModule {}

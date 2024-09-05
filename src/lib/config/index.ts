@@ -48,6 +48,9 @@ class Configuration {
     readonly IMAGE_UPLOAD_QUEUE = "image-upload"
 
     @IsString()
+    readonly TRACK_PLAY_QUEUE = "track-play"
+
+    @IsString()
     readonly JWT_SECRET = process.env.JWT_SECRET
     
     @IsString()

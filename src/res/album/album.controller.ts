@@ -8,13 +8,17 @@ import {
   Delete,
   Query,
   Put,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AlbumService } from './album.service';
 import { CreateAlbumDto, UpdateAlbumDto } from './dto/album.dto';
 import { CurrentUser } from '../user/decorator/current-user.decorator';
 import { UserEntity } from '../user/entities/user.entity';
 import { QueryOptionsDto } from 'src/lib/common/utils/pagination';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
+
+@UseInterceptors(CacheInterceptor)
 @Controller('album')
 export class AlbumController {
   constructor(private readonly albumService: AlbumService) {}

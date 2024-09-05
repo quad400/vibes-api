@@ -18,6 +18,7 @@ import { AlbumLikeEntity } from 'src/res/album/entities/album-like.entity';
 import { TrackEntity } from 'src/res/track/entities/track.entity';
 import { AlbumEntity } from 'src/res/album/entities/album.entity';
 import { PlaylistEntity } from 'src/res/playlist/entities/playlist.entity';
+import { PlayEntity } from '../../track/entities/play.entity';
 
 @Entity('users')
 export class UserEntity extends BaseEntity {
@@ -84,4 +85,7 @@ export class UserEntity extends BaseEntity {
     name: 'user_favorite_albums',
   })
   favorite_albums: AlbumEntity[];
+
+  @OneToMany(()=> PlayEntity, (play)=> play.user)
+  plays: PlayEntity[]
 }

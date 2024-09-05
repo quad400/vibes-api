@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateTrackDto } from './dto/create-track.dto';
+import { CreateTrackDto, GetArtistTrackPlaysDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TrackEntity } from './entities/track.entity';
@@ -20,19 +20,32 @@ import {
 import { TrackLikeEntity } from './entities/track-like.entity';
 import { UserService } from '../user/user.service';
 import { UserEntity } from '../user/entities/user.entity';
+import { InjectQueue } from '@nestjs/bull';
+import { Config } from 'src/lib/config';
+import { Queue } from 'bull';
+import { PlayEntity } from './entities/play.entity';
 
 @Injectable()
 export class TrackService {
   constructor(
     @InjectRepository(TrackEntity)
     private readonly trackRepository: Repository<TrackEntity>,
+
     @InjectRepository(TrackLikeEntity)
-    private readonly trackLikeRepository: Repository<TrackLikeEntity>,    
+    private readonly trackLikeRepository: Repository<TrackLikeEntity>,
+
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+
+    @InjectRepository(PlayEntity)
+    private readonly playTrackRepository: Repository<PlayEntity>,
+
     private readonly albumService: AlbumService,
     private readonly artistService: ArtistService,
-    private readonly userService: UserService
+    private readonly userService: UserService,
+
+    @InjectQueue(Config.TRACK_PLAY_QUEUE)
+    private readonly trackPlayQueue: Queue,
   ) {}
 
   async addNewTrack(userId: string, data: CreateTrackDto) {
@@ -64,7 +77,11 @@ export class TrackService {
     return Response.success(null, 'Track updated successfuly', HttpStatus.OK);
   }
 
-  async getTrack(trackId: string) {
+  async getTrack(userId: string, trackId: string) {
+    await this.trackPlayQueue.add(
+      { trackId, userId },
+      { removeOnComplete: true, removeOnFail: true, timeout: 1000 },
+    );
     const track = await this.findById(trackId);
     return Response.success(
       track,
@@ -80,6 +97,8 @@ export class TrackService {
 
     const queryBuilder = this.trackRepository
       .createQueryBuilder('track')
+      .leftJoinAndSelect('track.likes', 'likes')
+      .loadRelationCountAndMap(`track.likeCount`, `track.likes`)
       .where('track.is_deleted = :is_deleted', { is_deleted: false })
       .leftJoinAndSelect('track.artist', 'artist')
       .leftJoinAndSelect('artist.user', 'user')
@@ -128,8 +147,11 @@ export class TrackService {
         track: { id: trackId },
       },
     });
-
+    const track = await this.findById(trackId);
+    console.log(track);
     if (existingLike) {
+      track.likes.filter((track_like) => track_like.id !== existingLike.id);
+      await this.trackRepository.save(track);
       await this.trackLikeRepository.delete(existingLike.id);
       return Response.success(
         null,
@@ -137,19 +159,18 @@ export class TrackService {
         HttpStatus.OK,
       );
     } else {
-      const track = await this.findById(trackId);
-
-      const newLike = this.trackLikeRepository.create({
+      let newLike = this.trackLikeRepository.create({
         user: { id: userId },
         track: { id: track.id },
       });
+      newLike = await this.trackLikeRepository.save(newLike);
 
-      await this.trackLikeRepository.save(newLike);
+      await this.trackRepository.save(track);
+      track.likes.push(newLike);
       return Response.success(null, 'Track liked successfully', HttpStatus.OK);
     }
   }
 
-  
   async addRemoveFavouriteTrack(userId: string, trackId: string) {
     const user = await this.userService.findById(userId);
     const track = await this.findById(trackId);
@@ -182,6 +203,40 @@ export class TrackService {
     return Response.success(
       track,
       'Track likes retrieved successfully',
+      HttpStatus.OK,
+    );
+  }
+
+  async getTrackPlays(trackId: string) {
+    const playTracks = await this.playTrackRepository.find({
+      where: {
+        track: {
+          id: trackId,
+        },
+      },
+    });
+
+    return Response.success(
+      playTracks,
+      'Track Plays retrieved Successfully',
+      HttpStatus.OK,
+    );
+  }
+
+  async getArtistTrackPlays(query: GetArtistTrackPlaysDto) {
+    const { artistId } = query;
+    const artist = await this.artistService.findById(artistId);
+    const trackPlays = await this.playTrackRepository.findBy({
+      track: {
+        artist: {
+          id: artist.id,
+        },
+      },
+    });
+
+    return Response.success(
+      trackPlays,
+      'Artist Tracks Plays count retrieved Successfully',
       HttpStatus.OK,
     );
   }

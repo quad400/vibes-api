@@ -12,9 +12,10 @@ import {
 import { TrackLikeEntity } from './track-like.entity';
 import { BaseEntity } from 'src/lib/db/base-entity';
 import { PlaylistEntity } from 'src/res/playlist/entities/playlist.entity';
+import { PlayEntity } from 'src/res/track/entities/play.entity';
 
 @Entity('tracks')
-export class TrackEntity extends BaseEntity{
+export class TrackEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -39,8 +40,8 @@ export class TrackEntity extends BaseEntity{
   })
   artist: ArtistEntity;
 
-  @ManyToMany(() => PlaylistEntity, playlist => playlist.tracks)
-  playlists: PlaylistEntity[];  
+  @ManyToMany(() => PlaylistEntity, (playlist) => playlist.tracks)
+  playlists: PlaylistEntity[];
 
   @ManyToOne(() => AlbumEntity, (album) => album.id, {
     onDelete: 'CASCADE',
@@ -49,6 +50,11 @@ export class TrackEntity extends BaseEntity{
   @JoinColumn({ name: 'album_id' })
   album: AlbumEntity;
 
-  @OneToMany(() => TrackLikeEntity, (trackLike) => trackLike.user)
+  @OneToMany(() => TrackLikeEntity, (trackLike) => trackLike.user, {
+    eager: false,
+  })
   likes: TrackLikeEntity[];
+
+  @OneToMany(() => PlayEntity, (play) => play.track)
+  plays: PlayEntity[];
 }

@@ -14,6 +14,9 @@ import { ArtistService } from '../artist/artist.service';
 import { AlbumEntity } from '../album/entities/album.entity';
 import { AlbumLikeEntity } from '../album/entities/album-like.entity';
 import { ArtistEntity } from '../artist/entity/artist.entity';
+import { BullModule } from '@nestjs/bull';
+import { Config } from 'src/lib/config';
+import { PlayEntity } from '../track/entities/play.entity';
 
 @Module({
   imports: [
@@ -25,8 +28,12 @@ import { ArtistEntity } from '../artist/entity/artist.entity';
       TrackLikeEntity,
       AlbumEntity,
       AlbumLikeEntity,
-      ArtistEntity
+      ArtistEntity,
+      PlayEntity
     ]),
+    BullModule.registerQueue({
+      name: Config.TRACK_PLAY_QUEUE,
+    }),
   ],
   controllers: [PlaylistController],
   providers: [

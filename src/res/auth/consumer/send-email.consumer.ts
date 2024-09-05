@@ -11,7 +11,7 @@ export class SendMailConsumer{
     @Process()
     async transcode(job: Job<unknown>){
         this.logger.log('Start processing send email queue');
-        this.logger.log(job.data["user"]);
+        this.logger.log(job.data);
         this.logger.log('End processing send email queue');
     }
 }
